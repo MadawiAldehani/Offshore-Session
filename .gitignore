@@ -1,0 +1,30 @@
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# builds
+/.next/
+/out/
+/build
+*.tsbuildinfo
+next-env.d.ts
+
+# generated artwork — rebuild with `npm run clean-map`
+public/maps/*-clean.*
+public/maps/_compare.png
+
+# environment — never commit keys
+.env
+.env*.local
+.env.production
+
+# logs
+npm-debug.log*
+yarn-error.log*
+*.log
+
+# editors / OS
+.DS_Store
+.vscode/
+.idea/

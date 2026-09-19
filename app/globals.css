@@ -1,0 +1,112 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body {
+    @apply bg-abyss text-slate-100 antialiased;
+    /* The quiz is a fixed-viewport app; never bounce-scroll the projector. */
+    overscroll-behavior: none;
+  }
+
+  /* Phones: stop the double-tap-to-zoom delay on big answer buttons and
+     prevent the iOS long-press callout when someone holds an option. */
+  button {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+@layer components {
+  /* ---------------------------------------------------------------------
+     Range slider — styled from scratch so it has a thumb big enough to
+     drive one-handed on a phone.
+     --------------------------------------------------------------------- */
+  .offshore-slider {
+    @apply w-full appearance-none bg-transparent;
+    height: 44px;
+  }
+  .offshore-slider::-webkit-slider-runnable-track {
+    height: 14px;
+    border-radius: 9999px;
+    background: linear-gradient(90deg, #0e7490 0%, #22d3ee 100%);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+  }
+  .offshore-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 40px;
+    width: 40px;
+    margin-top: -14px;
+    border-radius: 9999px;
+    background: #ffb020;
+    border: 4px solid #04070f;
+    box-shadow: 0 0 0 2px #ffb020, 0 6px 18px rgba(0, 0, 0, 0.55);
+    cursor: grab;
+  }
+  .offshore-slider::-moz-range-track {
+    height: 14px;
+    border-radius: 9999px;
+    background: linear-gradient(90deg, #0e7490 0%, #22d3ee 100%);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+  }
+  .offshore-slider::-moz-range-thumb {
+    height: 36px;
+    width: 36px;
+    border-radius: 9999px;
+    background: #ffb020;
+    border: 4px solid #04070f;
+    box-shadow: 0 0 0 2px #ffb020, 0 6px 18px rgba(0, 0, 0, 0.55);
+    cursor: grab;
+  }
+
+  /* Wager slider uses the warning palette so it reads as "at risk". */
+  .bet-slider::-webkit-slider-runnable-track {
+    background: linear-gradient(90deg, #7c2d12 0%, #f97316 100%);
+  }
+  .bet-slider::-moz-range-track {
+    background: linear-gradient(90deg, #7c2d12 0%, #f97316 100%);
+  }
+
+  /* Big thumb-friendly answer button for the phone view. */
+  .tap-target {
+    @apply relative w-full rounded-2xl px-5 py-6 text-left font-semibold
+           transition-all duration-150 active:scale-[0.97];
+    min-height: 88px;
+  }
+
+  .panel {
+    @apply rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur-sm;
+  }
+
+  .admin-btn {
+    @apply rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-semibold
+           transition hover:bg-white/10 active:scale-95 disabled:cursor-not-allowed
+           disabled:opacity-35 disabled:hover:bg-white/5;
+  }
+}
+
+@layer utilities {
+  /* Projector text needs a hard shadow to stay legible over the wave layer. */
+  .text-glow {
+    text-shadow: 0 0 28px rgba(34, 211, 238, 0.35), 0 3px 12px rgba(0, 0, 0, 0.7);
+  }
+  .text-glow-amber {
+    text-shadow: 0 0 30px rgba(255, 176, 32, 0.45), 0 3px 12px rgba(0, 0, 0, 0.7);
+  }
+  .no-select {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  /* Respect the OS setting — some people are motion sensitive, and a wall of
+     animation in a dark auditorium is exactly the trigger. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
