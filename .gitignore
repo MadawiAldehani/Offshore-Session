@@ -10,8 +10,8 @@
 *.tsbuildinfo
 next-env.d.ts
 
-# generated artwork — rebuild with `npm run clean-map`
-public/maps/*-clean.*
+# scratch output from the map cleaner (the cleaned map itself IS committed:
+# it is a runtime asset the app serves, not a build artifact)
 public/maps/_compare.png
 
 # environment — never commit keys

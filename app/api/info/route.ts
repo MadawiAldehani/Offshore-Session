@@ -1,10 +1,15 @@
 /**
- * GET /api/info → { joinUrl, host }
+ * GET /api/info → { joinUrl, host, loopbackOnly }
  *
- * The projector needs a URL that PHONES can actually open. If you open
- * /screen on http://localhost:3000 the QR code must not say "localhost" —
- * that resolves to the phone itself. So we look up the machine's LAN address
- * and build the join URL from that.
+ * The projector needs a URL that PHONES can actually open.
+ *
+ * Locally that means substituting the machine's LAN address: if you open
+ * /screen on http://localhost:3000 the QR code must not say "localhost",
+ * because on a phone that resolves to the phone itself.
+ *
+ * Deployed, the request already arrives on a public hostname, so we keep it —
+ * but we must honour the proxy's protocol header, or the QR would send phones
+ * to http:// on a host that only serves https://.
  */
 
 import { networkInterfaces } from "node:os";
@@ -27,17 +32,26 @@ export async function GET(request: Request) {
   const port = host.includes(":") ? host.split(":")[1] : "3000";
   const hostname = host.split(":")[0];
 
-  // Only substitute the LAN address when the projector is on a loopback
-  // address. If you're already browsing over the network, keep that host.
   const isLoopback =
     hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
+
+  // Behind a platform proxy (Railway, Render, Fly, a load balancer) the app
+  // itself speaks http while the public URL is https. Trust the forwarded
+  // header, and fall back to https for any non-loopback host.
+  const forwardedProto = request.headers
+    .get("x-forwarded-proto")
+    ?.split(",")[0]
+    ?.trim();
+  const protocol = isLoopback ? "http" : (forwardedProto ?? "https");
+
+  // Only swap in the LAN address when we are actually on a loopback address.
   const lan = isLoopback ? lanAddress() : null;
   const effectiveHost = lan ? `${lan}:${port}` : host;
 
   return Response.json({
-    joinUrl: `http://${effectiveHost}/play`,
+    joinUrl: `${protocol}://${effectiveHost}/play`,
     host: effectiveHost,
-    // True when we could not find a LAN address — the UI warns about it.
+    // True when running locally with no reachable LAN address — the UI warns.
     loopbackOnly: isLoopback && !lan,
   });
 }

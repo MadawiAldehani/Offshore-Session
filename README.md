@@ -135,15 +135,34 @@ cannot be read out of devtools.
 
 ## Going online
 
-The app currently keeps the whole game **in the server's memory**. That is
-perfect for one laptop in one room, and it is why no setup is needed.
+The app keeps the whole game **in the server's memory**. That is why it needs
+no database and no configuration — and it is also why it must run as a single
+**persistent** server.
 
-**It will not work on Vercel as-is.** Vercel runs code across many short-lived
-instances, so players would land on different copies of the game and see
-different states. The live connection also gets cut short there.
+**Deploy it to Railway, Render or Fly.io** — anywhere that runs a normal Node
+process. The code needs no changes.
 
-To deploy for real, the storage layer has to move to something shared —
-Supabase is the intended target. The code is already built for this:
+> ⚠️ **Not Vercel or Netlify.** Those run serverless functions: each request can
+> hit a different short-lived instance with its own memory, so players would
+> land on different copies of the game and the leaderboard would contradict
+> itself. Long-lived connections get cut short there too.
+
+### Deploying to Railway
+
+1. Sign in at [railway.app](https://railway.app) with GitHub
+2. **New Project → Deploy from GitHub repo →** pick this repository
+3. Wait for the build. Railway detects Next.js and runs `npm run build`
+   then `npm start` on its own — there is nothing to configure
+4. **Settings → Networking → Generate Domain** to get a public URL
+
+That URL works from any network, on any phone. The QR code on the projector
+picks it up automatically, over https.
+
+**What you give up:** if the server restarts, an in-progress game resets to an
+empty lobby. Rare, and recoverable — reset and replay the question.
+
+**If you later need the game to survive restarts**, the storage layer is built
+to be swapped:
 
 - Every state change goes through one interface,
   [`lib/store/types.ts`](lib/store/types.ts)
@@ -151,8 +170,6 @@ Supabase is the intended target. The code is already built for this:
   [`lib/store/memory.ts`](lib/store/memory.ts)
 - Swapping it is a change to **one file**:
   [`lib/store/index.ts`](lib/store/index.ts)
-- The client hook [`lib/client/useGameStream.ts`](lib/client/useGameStream.ts)
-  is the matching seam on the browser side
 - The scoring rules in [`lib/scoring.ts`](lib/scoring.ts) are pure functions
   and port unchanged
 
