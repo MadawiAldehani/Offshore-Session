@@ -18,6 +18,7 @@
 import { QUESTIONS, TOTAL_DEPTH_M } from "../questions";
 import type {
   AdminView,
+  Player,
   Answer,
   CommonView,
   GameState,
@@ -31,6 +32,60 @@ import type {
 import { compareForRank, depthForIndex } from "./memory";
 
 const HISTOGRAM_BUCKETS = 24;
+
+// ---------------------------------------------------------------------------
+// Per-state memoisation
+// ---------------------------------------------------------------------------
+//
+// Every connected client projects the state for itself. With 200 phones open
+// that meant sorting 200 players 200 times per broadcast, plus rebuilding the
+// same histogram and leaderboard for each one.
+//
+// The state object is replaced immutably on every change, so it is a safe
+// cache key: a new object means genuinely new data. A WeakMap lets old states
+// be garbage collected as soon as nothing references them.
+
+interface Derived {
+  /** Players sorted into ranking order — the expensive part. */
+  ranked: Player[];
+  rankOf: Map<string, number>;
+  leaderboard: LeaderboardRow[];
+  histogram: HistogramBucket[];
+  taps: { x: number; y: number }[];
+  optionCounts: number[];
+  screen?: ScreenView;
+  admin?: AdminView;
+}
+
+const derivedCache = new WeakMap<GameState, Derived>();
+
+function derive(state: GameState): Derived {
+  const cached = derivedCache.get(state);
+  if (cached) return cached;
+
+  const question = currentQuestion(state);
+  const ranked = Object.values(state.players).sort(compareForRank);
+  const rankOf = new Map(ranked.map((p, i) => [p.id, i + 1]));
+  const leaderboard = ranked.map((player, index) => ({
+    playerId: player.id,
+    name: player.name,
+    score: player.score,
+    delta: player.score - player.previousScore,
+    rank: index + 1,
+    previousRank: player.previousRank,
+  }));
+
+  const derived: Derived = {
+    ranked,
+    rankOf,
+    leaderboard,
+    histogram: buildHistogram(state, question),
+    taps: buildTaps(state, question),
+    optionCounts: buildOptionCounts(state, question),
+  };
+  derivedCache.set(state, derived);
+  return derived;
+}
 
 /** Phases in which the correct answer may be shown to clients. */
 function isRevealed(state: GameState, question: Question | null): boolean {
@@ -112,15 +167,7 @@ function commonView(state: GameState): CommonView {
 }
 
 export function buildLeaderboard(state: GameState, limit?: number): LeaderboardRow[] {
-  const sorted = Object.values(state.players).sort(compareForRank);
-  const rows = sorted.map((player, index) => ({
-    playerId: player.id,
-    name: player.name,
-    score: player.score,
-    delta: player.score - player.previousScore,
-    rank: index + 1,
-    previousRank: player.previousRank,
-  }));
+  const rows = derive(state).leaderboard;
   return typeof limit === "number" ? rows.slice(0, limit) : rows;
 }
 
@@ -215,9 +262,13 @@ function betCount(state: GameState, question: Question | null): number {
 // ---------------------------------------------------------------------------
 
 export function projectScreen(state: GameState): ScreenView {
-  const question = currentQuestion(state);
-  const leaderboard = buildLeaderboard(state);
-  return {
+  const d = derive(state);
+  // serverNow must be the real current time — clients derive their clock
+  // offset from it — so it is refreshed even when the rest is cached.
+  if (d.screen) return { ...d.screen, serverNow: Date.now() };
+
+  const leaderboard = d.leaderboard;
+  const view: ScreenView = {
     ...commonView(state),
     view: "screen",
     recentPlayers: Object.values(state.players)
@@ -225,13 +276,15 @@ export function projectScreen(state: GameState): ScreenView {
       .slice(0, 60)
       .map((p) => ({ id: p.id, name: p.name })),
     leaderboard: leaderboard.slice(0, 10),
-    histogram: buildHistogram(state, question),
-    taps: buildTaps(state, question),
-    optionCounts: buildOptionCounts(state, question),
-    betCount: betCount(state, question),
+    histogram: d.histogram,
+    taps: d.taps,
+    optionCounts: d.optionCounts,
+    betCount: betCount(state, currentQuestion(state)),
     celebrateNonce: state.celebrateNonce,
     winner: leaderboard[0] ?? null,
   };
+  d.screen = view;
+  return view;
 }
 
 export function projectPlay(state: GameState, playerId: string | null): PlayView {
@@ -243,11 +296,9 @@ export function projectPlay(state: GameState, playerId: string | null): PlayView
       ? (state.bets[question.id]?.[player.id] ?? null)
       : null;
 
-  let rank = 0;
-  if (player) {
-    const sorted = Object.values(state.players).sort(compareForRank);
-    rank = sorted.findIndex((p) => p.id === player.id) + 1;
-  }
+  // Reuses the ranking computed once for this state, rather than re-sorting
+  // every player list for each of a few hundred connected phones.
+  const rank = player ? (derive(state).rankOf.get(player.id) ?? 0) : 0;
 
   return {
     ...commonView(state),
@@ -268,17 +319,25 @@ export function projectPlay(state: GameState, playerId: string | null): PlayView
 }
 
 export function projectAdmin(state: GameState): AdminView {
+  const d = derive(state);
+  if (d.admin) return { ...d.admin, serverNow: Date.now() };
+
   const question = currentQuestion(state);
-  const players = Object.values(state.players);
-  return {
+  const players = d.ranked;
+  const view: AdminView = {
     ...commonView(state),
     view: "admin",
-    players: players
-      .sort(compareForRank)
-      .map((p) => ({ id: p.id, name: p.name, score: p.score, isBot: p.isBot })),
-    leaderboard: buildLeaderboard(state, 10),
+    players: players.map((p) => ({
+      id: p.id,
+      name: p.name,
+      score: p.score,
+      isBot: p.isBot,
+    })),
+    leaderboard: d.leaderboard.slice(0, 10),
     betCount: betCount(state, question),
     botCount: players.filter((p) => p.isBot).length,
     questions: QUESTIONS.map((q) => ({ id: q.id, type: q.type, prompt: q.prompt })),
   };
+  d.admin = view;
+  return view;
 }

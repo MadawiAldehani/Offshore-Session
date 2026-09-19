@@ -58,25 +58,60 @@ export class MemoryStore implements GameStore {
   }
 
   private emitScheduled = false;
+  private emitTimer: ReturnType<typeof setTimeout> | null = null;
+  private lastEmit = 0;
 
   /**
-   * Notify subscribers. Coalesced to one broadcast per tick so a burst of 50
-   * bot answers doesn't fan out 50 separate pushes to every connected client.
+   * Minimum gap between broadcasts, in ms.
+   *
+   * Without this the cost is quadratic: 200 players answering means 200 state
+   * changes, each fanning out to 200 connected clients — 40,000 payload
+   * builds. Measured against the live deployment that pushed answer latency
+   * to 35 seconds average.
+   *
+   * Capping the rate collapses an answer burst into a handful of broadcasts.
+   * 100ms still looks instantaneous on a projector — nobody perceives a
+   * tenth of a second — but it bounds the work no matter how many people
+   * answer at once.
+   */
+  private static readonly EMIT_INTERVAL_MS = 100;
+
+  /**
+   * Notify subscribers, rate-limited.
+   *
+   * Leading edge fires immediately so a lone action (an admin click, one
+   * player joining a quiet lobby) has no perceptible delay. Further changes
+   * inside the window are coalesced into a single trailing broadcast, so no
+   * update is ever dropped — only merged.
    */
   private emit(): void {
     if (this.emitScheduled) return;
+
+    const sinceLast = Date.now() - this.lastEmit;
+    if (sinceLast >= MemoryStore.EMIT_INTERVAL_MS) {
+      this.lastEmit = Date.now();
+      this.flush();
+      return;
+    }
+
     this.emitScheduled = true;
-    queueMicrotask(() => {
+    this.emitTimer = setTimeout(() => {
       this.emitScheduled = false;
-      const snapshot = this.state;
-      for (const listener of this.listeners) {
-        try {
-          listener(snapshot);
-        } catch {
-          // A broken client stream must never take down the game loop.
-        }
+      this.emitTimer = null;
+      this.lastEmit = Date.now();
+      this.flush();
+    }, MemoryStore.EMIT_INTERVAL_MS - sinceLast);
+  }
+
+  private flush(): void {
+    const snapshot = this.state;
+    for (const listener of this.listeners) {
+      try {
+        listener(snapshot);
+      } catch {
+        // A broken client stream must never take down the game loop.
       }
-    });
+    }
   }
 
   /** Replace state immutably so React clients see a new object identity. */
@@ -86,6 +121,9 @@ export class MemoryStore implements GameStore {
   }
 
   private clearTimers(): void {
+    if (this.emitTimer) clearTimeout(this.emitTimer);
+    this.emitTimer = null;
+    this.emitScheduled = false;
     if (this.lockTimer) clearTimeout(this.lockTimer);
     if (this.stageTimer) clearInterval(this.stageTimer);
     this.lockTimer = null;
