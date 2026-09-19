@@ -1,0 +1,15 @@
+# Explicit build plan, so the platform does not have to guess.
+# Used by Railway (and anything else built on Nixpacks).
+
+[phases.setup]
+nixPkgs = ["nodejs_20"]
+
+[phases.install]
+cmds = ["npm ci"]
+
+[phases.build]
+cmds = ["npm run build"]
+
+[start]
+# Next.js binds to $PORT on its own; the platform sets it.
+cmd = "npm start"
