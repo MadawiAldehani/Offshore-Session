@@ -1,0 +1,19 @@
+# Render blueprint — lets Render configure the service itself.
+#
+# In Render:  New  ->  Blueprint  ->  pick this repository
+# Everything below is applied automatically; there is nothing to type in.
+
+services:
+  - type: web
+    name: offshore-quiz
+    runtime: node
+    plan: free
+    # npm ci installs exactly what package-lock.json pins, so the deployed
+    # build matches what was tested locally.
+    buildCommand: npm ci && npm run build
+    # Next.js binds to $PORT on its own; Render sets it.
+    startCommand: npm start
+    healthCheckPath: /api/info
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
