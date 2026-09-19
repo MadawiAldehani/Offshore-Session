@@ -11,7 +11,7 @@
     "clean-map": "python3 scripts/clean_map.py public/maps/kuwait.jpg"
   },
   "dependencies": {
-    "next": "14.2.15",
+    "next": "^14.2.35",
     "qrcode": "^1.5.4",
     "react": "18.3.1",
     "react-dom": "18.3.1"
@@ -22,11 +22,14 @@
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "autoprefixer": "^10.4.19",
-    "postcss": "^8.4.38",
+    "postcss": "^8.5.28",
     "tailwindcss": "^3.4.4",
     "typescript": "^5.5.0"
   },
   "engines": {
     "node": "20.x"
+  },
+  "overrides": {
+    "postcss": "^8.5.28"
   }
 }
