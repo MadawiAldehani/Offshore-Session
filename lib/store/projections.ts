@@ -298,7 +298,20 @@ export function projectPlay(state: GameState, playerId: string | null): PlayView
 
   // Reuses the ranking computed once for this state, rather than re-sorting
   // every player list for each of a few hundred connected phones.
-  const rank = player ? (derive(state).rankOf.get(player.id) ?? 0) : 0;
+  const d = derive(state);
+  const rank = player ? (d.rankOf.get(player.id) ?? 0) : 0;
+
+  // Two rows either side, clamped to the ends of the board so a player in
+  // 1st or last still gets a full window rather than a stub.
+  const WINDOW = 2;
+  let neighbours: LeaderboardRow[] = [];
+  if (player && rank > 0) {
+    const index = rank - 1;
+    let from = Math.max(0, index - WINDOW);
+    const to = Math.min(d.leaderboard.length, from + WINDOW * 2 + 1);
+    from = Math.max(0, to - (WINDOW * 2 + 1));
+    neighbours = d.leaderboard.slice(from, to);
+  }
 
   return {
     ...commonView(state),
@@ -312,6 +325,7 @@ export function projectPlay(state: GameState, playerId: string | null): PlayView
           lastDelta: player.score - player.previousScore,
         }
       : null,
+    neighbours,
     myAnswer,
     myBet,
     lockedOut: myAnswer?.lockedOut === true,

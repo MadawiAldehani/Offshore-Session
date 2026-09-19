@@ -353,6 +353,15 @@ export interface PlayView extends CommonView {
     /** Points earned on the question just revealed. */
     lastDelta: number;
   } | null;
+  /**
+   * A slice of the leaderboard centred on this player.
+   *
+   * The projector can only show a top 10 and stay readable from the back of
+   * the room, which leaves most of a 200-person audience with nothing but a
+   * rank number. This gives every player the rows immediately above and below
+   * them, so "47th" becomes "47th, 120 points behind the person ahead".
+   */
+  neighbours: LeaderboardRow[];
   /** This player's answer to the current question, if any. */
   myAnswer: Answer | null;
   /** This player's wager in the final round, if placed. */

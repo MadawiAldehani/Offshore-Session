@@ -404,33 +404,121 @@ function PlayBody({
       return <RevealResult state={state} />;
 
     case "scores":
-      return (
-        <Waiting
-          title={state.me ? `${ordinal(state.me.rank)} place` : "Standings"}
-          detail={`${formatNumber(state.me?.score ?? 0)} points — leaderboard is on the screen.`}
-        />
-      );
+      return <Standings state={state} />;
 
     case "finished":
-      return (
-        <div className="flex flex-col gap-4">
-          <Banner tone="amber" label="Final result">
-            {state.me ? `${ordinal(state.me.rank)} of ${state.playerCount}` : "Game over"}
-          </Banner>
-          <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-8 text-center">
-            <p className="text-5xl font-black tabular-nums text-amber-bright">
-              {formatNumber(state.me?.score ?? 0)}
-            </p>
-            <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.3em] text-slate-500">
-              final score
-            </p>
-          </div>
-        </div>
-      );
+      return <Standings state={state} final />;
 
     default:
       return null;
   }
+}
+
+/**
+ * Where this player stands, with the rows either side for context.
+ *
+ * The projector only has room for a top 10; this is what the other 190 people
+ * look at. A bare rank number is not much of a moment — seeing who is just
+ * ahead, and by how little, is.
+ */
+function Standings({ state, final = false }: { state: PlayView; final?: boolean }) {
+  const me = state.me;
+  if (!me) return <Waiting title="Standings" detail="Waiting for your score…" />;
+
+  const myRow = state.neighbours.find((r) => r.playerId === me.id);
+  const movement =
+    myRow && myRow.previousRank !== null ? myRow.previousRank - myRow.rank : 0;
+
+  // How far ahead the next player up is — the number that makes people want
+  // the next question to start.
+  const ahead = state.neighbours.find((r) => r.rank === me.rank - 1);
+  const gap = ahead ? ahead.score - me.score : 0;
+
+  return (
+    <div className="flex flex-col gap-4">
+      {/* --- Your position ------------------------------------------------ */}
+      <div
+        className={`animate-pop-in rounded-2xl border-2 px-5 py-6 text-center ${
+          final ? "border-amber/50 bg-amber/10" : "border-cyan-400/30 bg-cyan-400/[0.07]"
+        }`}
+      >
+        <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-cyan-300/70">
+          {final ? "Final position" : "Your position"}
+        </p>
+        <p className="mt-1 text-6xl font-black leading-none text-amber-bright">
+          {ordinal(me.rank)}
+        </p>
+        <p className="mt-1 text-sm text-slate-400">
+          of {formatNumber(state.playerCount)} players
+        </p>
+
+        <div className="mt-3 flex items-center justify-center gap-4">
+          <span className="text-2xl font-black tabular-nums text-slate-100">
+            {formatNumber(me.score)}
+            <span className="ml-1 text-sm font-semibold text-slate-500">pts</span>
+          </span>
+          {movement !== 0 && (
+            <span
+              className={`text-base font-bold tabular-nums ${
+                movement > 0 ? "text-emerald-400" : "text-rose-400"
+              }`}
+            >
+              {movement > 0 ? `▲ ${movement}` : `▼ ${-movement}`}
+            </span>
+          )}
+        </div>
+
+        {!final && gap > 0 && (
+          <p className="mt-3 text-sm text-cyan-200/80">
+            {formatNumber(gap)} point{gap === 1 ? "" : "s"} behind {ahead?.name}
+          </p>
+        )}
+      </div>
+
+      {/* --- The rows around you ------------------------------------------ */}
+      {state.neighbours.length > 1 && (
+        <div className="overflow-hidden rounded-2xl border border-white/10">
+          {state.neighbours.map((row) => {
+            const isMe = row.playerId === me.id;
+            return (
+              <div
+                key={row.playerId}
+                className={`flex items-center gap-3 px-4 py-3 ${
+                  isMe
+                    ? "bg-amber/15 font-bold text-amber-bright"
+                    : "bg-white/[0.02] text-slate-300"
+                }`}
+              >
+                <span className="w-8 shrink-0 text-center font-mono text-xs text-slate-500">
+                  {row.rank}
+                </span>
+                <span className="min-w-0 flex-1 truncate text-sm">
+                  {isMe ? "You" : row.name}
+                </span>
+                {row.delta !== 0 && (
+                  <span
+                    className={`shrink-0 font-mono text-xs tabular-nums ${
+                      row.delta > 0 ? "text-emerald-400" : "text-rose-400"
+                    }`}
+                  >
+                    {row.delta > 0 ? "+" : ""}
+                    {formatNumber(row.delta)}
+                  </span>
+                )}
+                <span className="w-16 shrink-0 text-right font-mono text-sm tabular-nums">
+                  {formatNumber(row.score)}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      <p className="text-center text-xs text-slate-500">
+        {final ? "Thanks for playing" : "Top 10 is on the big screen"}
+      </p>
+    </div>
+  );
 }
 
 /** What the player personally scored on the question just revealed. */
