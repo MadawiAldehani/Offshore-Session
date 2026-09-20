@@ -25,7 +25,13 @@ interface BaseQuestion {
   prompt: string;
   /** Seconds players get to answer once the question starts. */
   timeLimit: number;
-  /** Optional one-liner shown on the reveal screen — the "did you know". */
+  /**
+   * Optional one-liner shown on the reveal screen.
+   *
+   * The deck deliberately ships without these. Whatever is written here is
+   * projected as fact in front of the room, so only add one you have verified
+   * yourself — not something that merely sounds plausible.
+   */
   factoid?: string;
 }
 

@@ -89,8 +89,6 @@ export const QUESTIONS: Question[] = [
     ],
     correctIndexes: [1, 3],
     timeLimit: 40,
-    factoid:
-      "On an exploration well, geotechnical and geophysical surveys de-risk the seabed and shallow section before the rig ever arrives. Pipeline commissioning and refinery turnarounds belong much later in the chain.",
   },
 
   // --- 2. Slider: year the 2D seismic was acquired --------------------------
@@ -106,8 +104,6 @@ export const QUESTIONS: Question[] = [
     timeLimit: 40,
     // Years are not quantities — without this the axis would read "2.0k".
     thousands: false,
-    factoid:
-      "2D seismic gives the regional picture: widely spaced lines used to high-grade leads before committing to a full 3D survey.",
   },
 
   // --- 3. Slider: how many authorities signed off ---------------------------
@@ -124,8 +120,6 @@ export const QUESTIONS: Question[] = [
     thousands: false,
     answer: 12,
     timeLimit: 40,
-    factoid:
-      "Even a single exploration well needs sign-off from environmental, maritime, defence, fisheries, customs and aviation bodies — a dozen separate authorities before the rig can move.",
   },
 
   // --- 4. Heatmap: locate the Al-Nokhatha field -----------------------------
@@ -149,8 +143,6 @@ export const QUESTIONS: Question[] = [
     // to demand precision — smaller tolerance = tighter scoring.
     tolerance: 0.5,
     timeLimit: 40,
-    factoid:
-      "Al-Nokhatha sits in Kuwait's northern offshore acreage — one of the fields at the centre of the country's move into offshore exploration.",
   },
 
   // --- 5. Pixel reveal: identify the rig ------------------------------------
@@ -164,8 +156,6 @@ export const QUESTIONS: Question[] = [
     stagePoints: [1000, 700, 400, 100],
     stageDuration: 10,
     timeLimit: 40,
-    factoid:
-      "Jack-ups stand on the seabed on retractable legs — practical to about 150 m of water.",
   },
 
   // --- 6. Slider: when JZ-0001 was discovered -------------------------------------
@@ -181,8 +171,6 @@ export const QUESTIONS: Question[] = [
     timeLimit: 40,
     // Years render in full, never compacted to "2.0k".
     thousands: false,
-    factoid:
-      "JZ-0001 is a recent result in Kuwait's offshore exploration story — the payoff of the surveys and permits in the earlier questions.",
   },
 
   // --- 7. Multi-select: which wells found the Minagish ----------------------
@@ -195,8 +183,6 @@ export const QUESTIONS: Question[] = [
     options: ["NO-0001", "JL-0002", "HA-0001", "JZ-0001"],
     correctIndexes: [0, 3],
     timeLimit: 40,
-    factoid:
-      "Both NO-0001 and JZ-0001 encountered the Minagish — the same reservoir interval proven in two separate wells.",
   },
 
   // --- 8. Multi-select: which wells found oil -------------------------------
@@ -209,8 +195,6 @@ export const QUESTIONS: Question[] = [
     options: ["HA-0001", "NO-0001", "JZ-0001", "JL-0002"],
     correctIndexes: [1, 3],
     timeLimit: 40,
-    factoid:
-      "NO-0001 and JL-0002 both came in as oil discoveries.",
   },
 
   // --- 9. Slider: when the SLB offshore study was finalised -----------------
@@ -226,8 +210,6 @@ export const QUESTIONS: Question[] = [
     timeLimit: 40,
     // Years render in full, never compacted to "2.0k".
     thousands: false,
-    factoid:
-      "Studies like this one sit between the seismic and the drilling decision — turning acquired data into a ranked set of prospects.",
   },
 
   // --- 10. Finale: double or lose -------------------------------------------
@@ -249,8 +231,6 @@ export const QUESTIONS: Question[] = [
     correctIndex: 1,
     betTimeLimit: 30,
     timeLimit: 40,
-    factoid:
-      "Data only lowers risk when it addresses the element that is actually in doubt — source, reservoir, seal or trap. Aimed at the wrong element it adds cost and delay while the key risk stands, and good data sometimes RAISES assessed risk by exposing a problem that was hidden before.",
   },
 
 ];
