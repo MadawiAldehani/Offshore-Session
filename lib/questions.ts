@@ -120,12 +120,12 @@ export const QUESTIONS: Question[] = [
     max: 70,
     step: 1,
     unit: "",
-    // Plain counts, never compacted to "30k".
+    // Plain counts, never compacted to "12k".
     thousands: false,
-    answer: 30,
+    answer: 12,
     timeLimit: 40,
     factoid:
-      "Offshore permitting touches environmental, maritime, defence, fisheries, customs and aviation bodies — the count adds up far faster than people expect.",
+      "Even a single exploration well needs sign-off from environmental, maritime, defence, fisheries, customs and aviation bodies — a dozen separate authorities before the rig can move.",
   },
 
   // --- 4. Heatmap: locate the Al-Nokhatha field -----------------------------
@@ -213,23 +213,21 @@ export const QUESTIONS: Question[] = [
       "NO-0001 and JL-0002 both came in as oil discoveries.",
   },
 
-  // --- 9. Range: how deep is Kuwait's offshore ------------------------------
-  // The `range` type asks for a BAND, not a point. Scored on intersection over
-  // union, so covering the whole slider to be safe scores almost nothing.
+  // --- 9. Slider: when the SLB offshore study was finalised -----------------
   {
     id: "q9",
-    type: "range",
-    prompt: "What is the range of water depth in Kuwait's offshore acreage?",
-    min: 0,
-    max: 120,
-    step: 5,
-    unit: "m",
-    answerMin: 0,
-    answerMax: 40,
+    type: "slider",
+    prompt: "In what year was the SLB offshore study finalised?",
+    min: 2000,
+    max: 2026,
+    step: 1,
+    unit: "",
+    answer: 2018,
     timeLimit: 40,
+    // Years render in full, never compacted to "2.0k".
     thousands: false,
     factoid:
-      "Kuwait's offshore acreage sits in the shallow northern Gulf — nowhere deeper than about 40 m, which is why jack-ups rather than floating rigs do the work.",
+      "Studies like this one sit between the seismic and the drilling decision — turning acquired data into a ranked set of prospects.",
   },
 
   // --- 10. Finale: double or lose -------------------------------------------

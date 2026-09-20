@@ -18,7 +18,7 @@ Every question allows **40 seconds**.
 | 6 | JZ-0001 discovery year | Slider | 1000 | ❌ |
 | 7 | Minagish wells | Multi-select | 1000 | ✅ |
 | 8 | Oil discovery wells | Multi-select | 1000 | ✅ |
-| 9 | Water depth range | Range band | 1000 | ✅ |
+| 9 | SLB offshore study year | Slider | 1000 | ❌ |
 | 10 | More data → less risk? | Bet | wager | ❌ |
 
 ---
@@ -62,7 +62,7 @@ Answered at 5 seconds, with 2 correct options out of 4:
 
 ---
 
-## Sliders — questions 2, 3, 6
+## Sliders — questions 2, 3, 6, 9
 
 ```
 1000 × (1 − distance ÷ furthest possible miss)
@@ -82,16 +82,34 @@ range is further away — so a guess at either extreme is treated fairly.
 | 2005 | 357 |
 | 2000 | 0 |
 
-**Q3 — authorities · range 0–70 · answer 30**
+**Q3 — authorities · range 0–70 · answer 12**
 
 | Guess | Score |
 | --- | --- |
-| 30 | **1000** |
-| 25 | 875 |
-| 20 | 750 |
-| 10 | 500 |
-| 50 | 500 |
+| 12 | **1000** |
+| 10 | 966 |
+| 15 | 948 |
+| 20 | 862 |
+| 35 | 603 |
+| 50 | 345 |
 | 70 | 0 |
+
+> Note: the range was set to 0–70 when the answer was 30. With the answer
+> now 12, everything interesting happens in the left fifth of the slider and
+> the untouched default (35) still scores 603. Tightening to 0–40 would make
+> it considerably more discriminating.
+
+**Q9 — SLB offshore study · range 2000–2026 · answer 2018**
+
+| Guess | Score |
+| --- | --- |
+| 2018 | **1000** |
+| 2017 | 944 |
+| 2016 | 889 |
+| 2013 | 722 |
+| 2010 | 556 |
+| 2026 | 556 |
+| 2000 | 0 |
 
 **Q6 — JZ-0001 year · range 2010–2026 · answer 2025**
 
@@ -151,28 +169,13 @@ Fixed points by the stage showing when they answer. The image sharpens every
 
 ---
 
-## Range band — question 9
+## Range band — no longer in the deck
 
-```
-overlap ÷ combined span × 1000 × speed
-```
-
-Standard intersection-over-union. True band is **0–40 m**, slider runs 0–120 m.
-Answered at 5 seconds:
-
-| Their band | Overlap | Score |
-| --- | --- | --- |
-| 0–40 m | 100% | **938** |
-| 0–50 m | 80% | 750 |
-| 10–50 m | 60% | 563 |
-| 0–20 m | 50% | 469 |
-| 0–120 m | 33% | 313 |
-| 30–90 m | 11% | 104 |
-| 50–120 m | 0% | 0 |
-
-> ⚠️ **Covering the whole slider to play it safe scores badly** (313). Too wide
-> is punished as hard as too narrow — otherwise everyone would drag both
-> handles to the extremes.
+Question 9 used to be a range band ("pick a low and a high"). It is now a
+slider, so no question currently uses this type — but the mechanic is still
+built and documented in [`lib/questions.ts`](lib/questions.ts) if you want it
+back. It scores on overlap (intersection over union), which means covering the
+whole slider to play safe scores badly.
 
 ---
 
