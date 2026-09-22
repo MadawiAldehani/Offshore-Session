@@ -38,7 +38,7 @@
  *
  * 5) Pixel reveal — image sharpens in steps, phones show options
  *    { id, type: "pixel", prompt, image, options, correctIndex,
- *      stagePoints: [1000, 700, 400, 100], stageDuration: 10, timeLimit }
+ *      stagePoints: [1000, 700, 400, 100], stageDuration: 7, timeLimit }
  *    Answer early for more points. A WRONG answer locks the player out.
  *
  * 6) Range band — players pick a LOW and a HIGH, not a single value
@@ -78,17 +78,20 @@ export const QUESTIONS: Question[] = [
     id: "q1",
     type: "multi",
     prompt:
-      "Select two or more technical preparations required before drilling an exploratory offshore well",
-    // Deliberately interleaved: the two correct answers sit at B and D so the
-    // set cannot be spotted by position, and A is a plausible-looking decoy.
+      "Select two or more surveys required for geohazard assessment before drilling an exploratory offshore well",
+    // Both decoys are genuine pre-drill activities, which is what makes them
+    // tempting: neither is a geohazard SURVEY. Deliberately avoided naming a
+    // specific geophysical method (gravity, magnetics) as a decoy, since those
+    // are themselves geophysical surveys and would make option D ambiguous.
+    // Interleaved so the correct pair cannot be spotted by position.
     options: [
-      "Export pipeline commissioning",
+      "Rig acceptance audit",
       "Geotechnical survey",
-      "Refinery turnaround scheduling",
+      "Reservoir simulation study",
       "Geophysical survey",
     ],
     correctIndexes: [1, 3],
-    timeLimit: 40,
+    timeLimit: 30,
   },
 
   // --- 2. Slider: year the 2D seismic was acquired --------------------------
@@ -101,7 +104,7 @@ export const QUESTIONS: Question[] = [
     step: 1,
     unit: "",
     answer: 2014,
-    timeLimit: 40,
+    timeLimit: 30,
     // Years are not quantities — without this the axis would read "2.0k".
     thousands: false,
   },
@@ -113,13 +116,13 @@ export const QUESTIONS: Question[] = [
     prompt:
       "How many separate authorities were involved in securing approvals and permits before drilling NO-0001?",
     min: 0,
-    max: 70,
+    max: 40,
     step: 1,
     unit: "",
     // Plain counts, never compacted to "12k".
     thousands: false,
     answer: 12,
-    timeLimit: 40,
+    timeLimit: 30,
   },
 
   // --- 4. Heatmap: locate the Al-Nokhatha field -----------------------------
@@ -142,7 +145,7 @@ export const QUESTIONS: Question[] = [
     // the right general patch of sea still scores well. LOWER it (toward 0.2)
     // to demand precision — smaller tolerance = tighter scoring.
     tolerance: 0.5,
-    timeLimit: 40,
+    timeLimit: 30,
   },
 
   // --- 5. Pixel reveal: identify the rig ------------------------------------
@@ -154,8 +157,8 @@ export const QUESTIONS: Question[] = [
     options: ["Jack-up", "Semi-submersible", "Drillship", "Spar platform"],
     correctIndex: 0,
     stagePoints: [1000, 700, 400, 100],
-    stageDuration: 10,
-    timeLimit: 40,
+    stageDuration: 7,
+    timeLimit: 30,
   },
 
   // --- 6. Slider: when JZ-0001 was discovered -------------------------------------
@@ -168,7 +171,7 @@ export const QUESTIONS: Question[] = [
     step: 1,
     unit: "",
     answer: 2025,
-    timeLimit: 40,
+    timeLimit: 30,
     // Years render in full, never compacted to "2.0k".
     thousands: false,
   },
@@ -182,7 +185,7 @@ export const QUESTIONS: Question[] = [
     // by position alone.
     options: ["NO-0001", "JL-0002", "HA-0001", "JZ-0001"],
     correctIndexes: [0, 3],
-    timeLimit: 40,
+    timeLimit: 30,
   },
 
   // --- 8. Multi-select: which wells found oil -------------------------------
@@ -194,22 +197,17 @@ export const QUESTIONS: Question[] = [
     // otherwise players answer from remembered positions rather than knowledge.
     options: ["HA-0001", "NO-0001", "JZ-0001", "JL-0002"],
     correctIndexes: [1, 3],
-    timeLimit: 40,
+    timeLimit: 30,
   },
 
-  // --- 9. Slider: when the SLB offshore study was finalised -----------------
+  // --- 9. MCQ: spot the well that is not offshore ---------------------------
   {
     id: "q9",
-    type: "slider",
-    prompt: "In what year was the SLB offshore study finalised?",
-    min: 2000,
-    max: 2026,
-    step: 1,
-    unit: "",
-    answer: 2018,
-    timeLimit: 40,
-    // Years render in full, never compacted to "2.0k".
-    thousands: false,
+    type: "mcq",
+    prompt: "Which of the following is not an offshore well?",
+    options: ["HA-0001", "RI-0001", "HU-0001", "ZU-0001"],
+    correctIndex: 2,
+    timeLimit: 30,
   },
 
   // --- 10. Finale: double or lose -------------------------------------------
@@ -230,7 +228,7 @@ export const QUESTIONS: Question[] = [
     options: ["YES", "NO"],
     correctIndex: 1,
     betTimeLimit: 30,
-    timeLimit: 40,
+    timeLimit: 30,
   },
 
 ];

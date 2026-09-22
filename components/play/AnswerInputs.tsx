@@ -406,11 +406,16 @@ export function HeatmapInput({ state, onAnswer, submitting }: Props) {
 
         {placed && (
           <div
-            className="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 animate-pin-land"
-            style={{ left: `${placed.x * 100}%`, top: `${placed.y * 100}%` }}
-          >
-            <div className="h-6 w-6 rounded-full border-[3px] border-abyss bg-amber shadow-[0_0_18px_6px_rgba(255,176,32,0.6)]" />
-          </div>
+            // Same reason as the projector's star: pin-land animates
+            // `transform`, so centring must not rely on a translate.
+            className="pointer-events-none absolute h-6 w-6 animate-pin-land rounded-full border-[3px] border-abyss bg-amber shadow-[0_0_18px_6px_rgba(255,176,32,0.6)]"
+            style={{
+              left: `${placed.x * 100}%`,
+              top: `${placed.y * 100}%`,
+              marginLeft: "-0.75rem",
+              marginTop: "-0.75rem",
+            }}
+          />
         )}
 
         {!placed && (

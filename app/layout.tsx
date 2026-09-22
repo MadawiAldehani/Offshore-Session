@@ -2,8 +2,8 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Offshore — Workshop Quiz",
-  description: "Real-time quiz for the offshore exploration workshop",
+  title: "Offshore Discoveries — Knowledge Sharing Session",
+  description: "Offshore Discoveries knowledge sharing session",
 };
 
 export const viewport: Viewport = {

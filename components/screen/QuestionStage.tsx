@@ -295,7 +295,7 @@ function HeatmapStage({ state }: { state: ScreenView }) {
         <Stat label="Pins dropped" value={formatNumber(state.taps.length)} />
         {state.revealed && (
           <p className="animate-fade-up text-[2vh] leading-relaxed text-amber-bright/90">
-            The star marks the crest. Closest pins score highest.
+            The star marks the field. Closest pins score highest.
           </p>
         )}
       </div>

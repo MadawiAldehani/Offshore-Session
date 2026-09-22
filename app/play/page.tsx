@@ -135,11 +135,13 @@ function JoinForm({ onJoined }: { onJoined: (player: StoredPlayer) => void }) {
 
   return (
     <div className="flex flex-1 flex-col justify-center px-6 py-10">
-      <p className="text-center font-mono text-[11px] uppercase tracking-[0.4em] text-cyan-300/70">
-        Offshore Workshop
+      {/* Split across two lines: the full title as one heading would wrap to
+          three lines at this size on a small phone. */}
+      <p className="text-center font-mono text-[11px] uppercase tracking-[0.35em] text-cyan-300/70">
+        Knowledge Sharing Session
       </p>
-      <h1 className="mt-2 text-center text-4xl font-black tracking-tight text-glow">
-        Deepwater Quiz
+      <h1 className="mt-2 text-center text-4xl font-black leading-tight tracking-tight text-glow">
+        Offshore Discoveries
       </h1>
       <p className="mt-3 text-center text-sm leading-relaxed text-slate-400">
         Pick a name your colleagues will recognise on the big screen.

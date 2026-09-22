@@ -108,28 +108,42 @@ export function HeatmapBoard({
           style={{ mixBlendMode: "screen", opacity: revealed ? 0.55 : 0.9 }}
         />
 
-        {/* The answer. */}
+        {/* The answer.
+            Centred with negative margins rather than a -translate, because the
+            pop-in and pulse-ring keyframes set `transform` themselves and would
+            overwrite a centring translate — which put the star and its ring
+            down and to the right of the actual field. */}
         {trueAnswer && (
           <div
-            className="absolute -translate-x-1/2 -translate-y-1/2 animate-pop-in"
+            className="pointer-events-none absolute h-0 w-0"
             style={{ left: `${trueAnswer.x * 100}%`, top: `${trueAnswer.y * 100}%` }}
           >
-            <div className="absolute left-1/2 top-1/2 h-[9vh] w-[9vh] -translate-x-1/2 -translate-y-1/2 animate-pulse-ring rounded-full border-[0.4vh] border-amber-bright/70" />
-            <svg
-              viewBox="0 0 24 24"
-              className="h-[6vh] w-[6vh] drop-shadow-[0_0_20px_rgba(255,201,77,1)]"
-              // Counter-scale so the star stays the same size on screen as the
-              // map zooms in underneath it.
-              style={{ transform: zoomed ? `scale(${1 / ZOOM_SCALE})` : "scale(1)",
-                       transition: `transform ${ZOOM_DURATION_MS}ms cubic-bezier(0.33, 1, 0.68, 1)` }}
+            <div
+              className="absolute animate-pulse-ring rounded-full border-[0.4vh] border-amber-bright/70"
+              style={{ width: "9vh", height: "9vh", marginLeft: "-4.5vh", marginTop: "-4.5vh" }}
+            />
+            <div
+              className="absolute animate-pop-in"
+              style={{ width: "6vh", height: "6vh", marginLeft: "-3vh", marginTop: "-3vh" }}
             >
-              <path
-                d="M12 1.5l3.1 6.6 7.2.9-5.3 5 1.4 7.1L12 17.7 5.6 21.1 7 14 1.7 9l7.2-.9z"
-                fill="#ffc94d"
-                stroke="#04070f"
-                strokeWidth="1.1"
-              />
-            </svg>
+              <svg
+                viewBox="0 0 24 24"
+                className="h-full w-full drop-shadow-[0_0_20px_rgba(255,201,77,1)]"
+                // Counter-scale so the star stays the same size on screen as the
+                // map zooms in underneath it.
+                style={{
+                  transform: zoomed ? `scale(${1 / ZOOM_SCALE})` : "scale(1)",
+                  transition: `transform ${ZOOM_DURATION_MS}ms cubic-bezier(0.33, 1, 0.68, 1)`,
+                }}
+              >
+                <path
+                  d="M12 1.5l3.1 6.6 7.2.9-5.3 5 1.4 7.1L12 17.7 5.6 21.1 7 14 1.7 9l7.2-.9z"
+                  fill="#ffc94d"
+                  stroke="#04070f"
+                  strokeWidth="1.1"
+                />
+              </svg>
+            </div>
           </div>
         )}
       </div>
@@ -145,8 +159,12 @@ function RadarSweep() {
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
       <div
-        className="absolute left-1/2 top-1/2 aspect-square w-[160%] -translate-x-1/2 -translate-y-1/2 animate-radar-sweep rounded-full"
+        className="absolute left-1/2 top-1/2 aspect-square w-[160%] animate-radar-sweep rounded-full"
         style={{
+          // Percentage margins resolve against the container's WIDTH, which is
+          // also what sets this square's height — so -80% centres both axes.
+          marginLeft: "-80%",
+          marginTop: "-80%",
           background:
             "conic-gradient(from 0deg, rgba(34,211,238,0) 0deg, rgba(34,211,238,0.22) 26deg, rgba(34,211,238,0) 52deg)",
         }}
@@ -154,8 +172,8 @@ function RadarSweep() {
       {[0, 1, 2].map((i) => (
         <div
           key={i}
-          className="absolute left-1/2 top-1/2 aspect-square w-[70%] -translate-x-1/2 -translate-y-1/2 animate-radar-ping rounded-full border border-cyan-300/30"
-          style={{ animationDelay: `${i}s` }}
+          className="absolute left-1/2 top-1/2 aspect-square w-[70%] animate-radar-ping rounded-full border border-cyan-300/30"
+          style={{ marginLeft: "-35%", marginTop: "-35%", animationDelay: `${i}s` }}
         />
       ))}
     </div>

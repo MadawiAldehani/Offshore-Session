@@ -29,10 +29,10 @@ export default function Home() {
 
       <div className="relative w-full max-w-3xl">
         <p className="mb-3 text-center font-mono text-xs uppercase tracking-[0.42em] text-cyan-300/70">
-          Offshore Exploration Workshop
+          Knowledge Sharing Session
         </p>
         <h1 className="text-center text-5xl font-black tracking-tight text-glow sm:text-6xl">
-          Deepwater Quiz
+          Offshore Discoveries
         </h1>
         <p className="mt-4 text-center text-base text-slate-400">
           Pick a view to open. Run the projector on the big screen, keep the control panel
